@@ -1,0 +1,218 @@
+Задания:
+
+1. Опробовать консольные утилиты для работы с кластером
+Создать/скопировать/удалить папку
+
+[student1_13@bigdataanalytics-head-0 ~]$ mkdir newfolder
+[student1_13@bigdataanalytics-head-0 ~]$ cd newfolder
+[student1_13@bigdataanalytics-head-0 newfolder]$ touch newfile
+[student1_13@bigdataanalytics-head-0 newfolder]$ ls
+newfile
+[student1_13@bigdataanalytics-head-0 newfolder]$ cd ..
+[student1_13@bigdataanalytics-head-0 ~]$ rm -r newfolder
+[student1_13@bigdataanalytics-head-0 ~]$ ls
+
+Положить в HDFS любой файл
+
+ekaterina@MacBook-Pro-Ekaterina .ssh % scp -i ../.ssh/id_rsa_mac newfile student1_13@185.241.193.174:.
+/etc/profile.d/lang.sh: line 19: warning: setlocale: LC_CTYPE: cannot change locale (UTF-8): No such file or directory
+newfile                                                                100%   10KB 132.4KB/s   00:00    
+ekaterina@MacBook-Pro-Ekaterina .ssh % scp -i ../.ssh/id_rsa_mac newfile student1_13@185.241.193.174:f1
+/etc/profile.d/lang.sh: line 19: warning: setlocale: LC_CTYPE: cannot change locale (UTF-8): No such file or directory
+newfile                                                                100%   10KB 142.0KB/s   00:00    
+ekaterina@MacBook-Pro-Ekaterina .ssh % ssh -i ../.ssh/id_rsa_mac student1_13@185.241.193.174
+Last login: Tue Feb  2 23:51:17 2021 from 89-64-64-122.dynamic.chello.pl
+-bash: warning: setlocale: LC_CTYPE: cannot change locale (UTF-8): No such file or directory
+[student1_13@bigdataanalytics-head-0 ~]$ ls
+f1  folder  hs_err_pid23173.log  newfile
+
+Скопировать/удалить этот файл
+
+[student1_13@bigdataanalytics-head-0 ~]$ cp f1 f2
+[student1_13@bigdataanalytics-head-0 ~]$ ls
+f1  f2  folder  hs_err_pid23173.log  newfile
+[student1_13@bigdataanalytics-head-0 ~]$ rm newfile
+[student1_13@bigdataanalytics-head-0 ~]$ ls
+f1  f2  folder  hs_err_pid23173.log
+
+Просмотреть размер любой папки
+
+[student1_13@bigdataanalytics-head-0 ~]$ hdfs dfs -put f1 .
+[student1_13@bigdataanalytics-head-0 ~]$ hdfs dfs -du f1
+10409  20818  f1
+
+Посмотреть как файл хранится на файловой системе (см. команду fsck)
+
+[student1_13@bigdataanalytics-head-0 ~]$ hdfs fsck f1 -files -blocks -locations
+Connecting to namenode via http://bigdataanalytics-head-0.novalocal:50070/fsck?ugi=student1_13&files=1&blocks=1&locations=1&path=%2Fuser%2Fstudent1_13%2Ff1
+FSCK started by student1_13 (auth:SIMPLE) from /10.0.0.8 for path /user/student1_13/f1 at Wed Feb 03 13:29:36 UTC 2021
+/user/student1_13/f1 10409 bytes, replicated: replication=2, 1 block(s):  OK
+0. BP-2034205697-10.0.0.8-1605765014172:blk_1074452034_711892 len=10409 Live_repl=2  [DatanodeInfoWithStorage[10.0.0.12:50010,DS-7d4579f0-3ef5-4676-823e-8e4d60d2e4b8,DISK], DatanodeInfoWithStorage[10.0.0.9:50010,DS-cfcfbd8e-df78-48b2-977a-cc9bb7aa9546,DISK]]
+
+
+Status: HEALTHY
+ Number of data-nodes:	4
+ Number of racks:		1
+ Total dirs:			0
+ Total symlinks:		0
+
+Replicated Blocks:
+ Total size:	10409 B
+ Total files:	1
+ Total blocks (validated):	1 (avg. block size 10409 B)
+ Minimally replicated blocks:	1 (100.0 %)
+ Over-replicated blocks:	0 (0.0 %)
+ Under-replicated blocks:	0 (0.0 %)
+ Mis-replicated blocks:		0 (0.0 %)
+ Default replication factor:	2
+ Average block replication:	2.0
+ Missing blocks:		0
+ Corrupt blocks:		0
+ Missing replicas:		0 (0.0 %)
+
+Erasure Coded Block Groups:
+ Total size:	0 B
+ Total files:	0
+ Total block groups (validated):	0
+ Minimally erasure-coded block groups:	0
+ Over-erasure-coded block groups:	0
+ Under-erasure-coded block groups:	0
+ Unsatisfactory placement block groups:	0
+ Average block group size:	0.0
+ Missing block groups:		0
+ Corrupt block groups:		0
+ Missing internal blocks:	0
+FSCK ended at Wed Feb 03 13:29:36 UTC 2021 in 1 milliseconds
+
+
+The filesystem under path '/user/student1_13/f1' is HEALTHY
+
+*Установить нестандартный фактор репликации (см. команду setrep)
+
+[student1_13@bigdataanalytics-head-0 ~]$ hdfs dfs -setrep -w 4 f1
+Java HotSpot(TM) 64-Bit Server VM warning: INFO: os::commit_memory(0x00000000c0000000, 703594496, 0) failed; error='Cannot allocate memory' (errno=12)
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 703594496 bytes for committing reserved memory.
+# An error report file with more information is saved as:
+# /home/student1_13/hs_err_pid32716.log
+[student1_13@bigdataanalytics-head-0 ~]$ ls -al
+total 124
+drwx------    5 student1_13 student1_13  4096 Feb  3 13:35 .
+drwxr-xr-x. 128 admin       admin        4096 Jan 28 11:20 ..
+-rw-------    1 student1_13 student1_13   512 Feb  2 23:54 .bash_history
+-rw-r--r--    1 student1_13 student1_13    18 Aug  8  2019 .bash_logout
+-rw-r--r--    1 student1_13 student1_13   193 Aug  8  2019 .bash_profile
+-rw-r--r--    1 student1_13 student1_13   231 Aug  8  2019 .bashrc
+drwxrwxr-x    2 student1_13 student1_13  4096 Feb  2 20:29 .oracle_jre_usage
+drwx------    2 student1_13 student1_13  4096 Feb  2 20:29 .ssh
+-rw-r--r--    1 student1_13 student1_13 10409 Feb  3 13:15 f1
+-rw-r--r--    1 student1_13 student1_13 10409 Feb  3 13:21 f2
+drwxrwxr-x    2 student1_13 student1_13  4096 Feb  2 23:34 folder
+-rw-rw-r--    1 student1_13 student1_13 30191 Feb  2 23:53 hs_err_pid23173.log
+-rw-rw-r--    1 student1_13 student1_13 30185 Feb  3 13:35 hs_err_pid32716.log
+[student1_13@bigdataanalytics-head-0 ~]$ hdfs dfs -setrep 4 f1
+Java HotSpot(TM) 64-Bit Server VM warning: INFO: os::commit_memory(0x00000000c0000000, 703594496, 0) failed; error='Cannot allocate memory' (errno=12)
+#
+# There is insufficient memory for the Java Runtime Environment to continue.
+# Native memory allocation (mmap) failed to map 703594496 bytes for committing reserved memory.
+# An error report file with more information is saved as:
+# /home/student1_13/hs_err_pid1104.log
+[student1_13@bigdataanalytics-head-0 ~]$ ls -al
+total 156
+drwx------    5 student1_13 student1_13  4096 Feb  3 13:36 .
+drwxr-xr-x. 128 admin       admin        4096 Jan 28 11:20 ..
+-rw-------    1 student1_13 student1_13   512 Feb  2 23:54 .bash_history
+-rw-r--r--    1 student1_13 student1_13    18 Aug  8  2019 .bash_logout
+-rw-r--r--    1 student1_13 student1_13   193 Aug  8  2019 .bash_profile
+-rw-r--r--    1 student1_13 student1_13   231 Aug  8  2019 .bashrc
+drwxrwxr-x    2 student1_13 student1_13  4096 Feb  2 20:29 .oracle_jre_usage
+drwx------    2 student1_13 student1_13  4096 Feb  2 20:29 .ssh
+-rw-r--r--    1 student1_13 student1_13 10409 Feb  3 13:15 f1
+-rw-r--r--    1 student1_13 student1_13 10409 Feb  3 13:21 f2
+drwxrwxr-x    2 student1_13 student1_13  4096 Feb  2 23:34 folder
+-rw-rw-r--    1 student1_13 student1_13 30182 Feb  3 13:36 hs_err_pid1104.log
+-rw-rw-r--    1 student1_13 student1_13 30191 Feb  2 23:53 hs_err_pid23173.log
+-rw-rw-r--    1 student1_13 student1_13 30185 Feb  3 13:35 hs_err_pid32716.log
+
+*2. Опробовать доступ для работы с кластером
+Используя утилиту CURL
+Используя python3
+Используя libhdfs3
+Используя snakebite
+
+
+
+Литература:
+https://medium.com/@artem_gogin/how-exactly-hadoop-stores-the-data-23da0679d173
+https://hadoop.apache.org/docs/r2.4.1/hadoop-project-dist/hadoop-common/FileSystemShell.html
+
+https://hadoop.apache.org/docs/r2.7.1/hadoop-project-dist/hadoop-hdfs/HDFSCommands.html
+
+https://hadoop.apache.org/docs/r2.6.2/hadoop-mapreduce-client/hadoop-mapreduce-client-core/DistCp.html
+
+https://www.oreilly.com/library/view/hadoop-with-python/9781492048435/ch01.html
+
+
+
+ekaterina@MacBook-Pro-Ekaterina .ssh % ssh student1_13@185.241.193.174
+The authenticity of host '185.241.193.174 (185.241.193.174)' can't be established.
+ECDSA key fingerprint is SHA256:FlX3eC5ZoVY/Ep1XEU1GV6VgbCtLwwMtBS2PDcYYOLM.
+Are you sure you want to continue connecting (yes/no/[fingerprint])? y
+Please type 'yes', 'no' or the fingerprint: yes
+Warning: Permanently added '185.241.193.174' (ECDSA) to the list of known hosts.
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+@         WARNING: UNPROTECTED PRIVATE KEY FILE!          @
+@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Permissions 0644 for '/Users/ekaterina/.ssh/id_rsa' are too open.
+It is required that your private key files are NOT accessible by others.
+This private key will be ignored.
+Load key "/Users/ekaterina/.ssh/id_rsa": bad permissions
+student1_13@185.241.193.174: Permission denied (publickey,gssapi-keyex,gssapi-with-mic).0
+ekaterina@MacBook-Pro-Ekaterina .ssh % ls -al
+total 24
+drwxr-xr-x   6 ekaterina  staff   192 Feb  2 20:51 .
+drwxr-xr-x+ 58 ekaterina  staff  1856 Feb  2 13:00 ..
+-rw-r--r--   1 ekaterina  staff     0 Feb  2 13:05 id_rsa
+-rw-------   1 ekaterina  staff  2635 Feb  2 13:06 id_rsa_mac
+-rw-r--r--   1 ekaterina  staff   591 Feb  2 13:06 id_rsa_mac.pub
+-rw-r--r--   1 ekaterina  staff   177 Feb  2 20:51 known_hosts
+ekaterina@MacBook-Pro-Ekaterina .ssh % chmod 400 ../.ssh/id_rsa
+ekaterina@MacBook-Pro-Ekaterina .ssh % ls -al                  
+total 24
+drwxr-xr-x   6 ekaterina  staff   192 Feb  2 20:51 .
+drwxr-xr-x+ 58 ekaterina  staff  1856 Feb  2 13:00 ..
+-r--------   1 ekaterina  staff     0 Feb  2 13:05 id_rsa
+-rw-------   1 ekaterina  staff  2635 Feb  2 13:06 id_rsa_mac
+-rw-r--r--   1 ekaterina  staff   591 Feb  2 13:06 id_rsa_mac.pub
+-rw-r--r--   1 ekaterina  staff   177 Feb  2 20:51 known_hosts
+ekaterina@MacBook-Pro-Ekaterina .ssh % ssh student1_13@185.241.193.174
+Load key "/Users/ekaterina/.ssh/id_rsa": invalid format
+student1_13@185.241.193.174: Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
+ekaterina@MacBook-Pro-Ekaterina .ssh % chmod 400 ../.ssh/id_rsa_mac   
+ekaterina@MacBook-Pro-Ekaterina .ssh % ls -al                         
+total 24
+drwxr-xr-x   6 ekaterina  staff   192 Feb  2 20:51 .
+drwxr-xr-x+ 58 ekaterina  staff  1856 Feb  2 13:00 ..
+-r--------   1 ekaterina  staff     0 Feb  2 13:05 id_rsa
+-r--------   1 ekaterina  staff  2635 Feb  2 13:06 id_rsa_mac
+-rw-r--r--   1 ekaterina  staff   591 Feb  2 13:06 id_rsa_mac.pub
+-rw-r--r--   1 ekaterina  staff   177 Feb  2 20:51 known_hosts
+ekaterina@MacBook-Pro-Ekaterina .ssh % ssh student1_13@185.241.193.174
+Load key "/Users/ekaterina/.ssh/id_rsa": invalid format
+student1_13@185.241.193.174: Permission denied (publickey,gssapi-keyex,gssapi-with-mic).
+ekaterina@MacBook-Pro-Ekaterina .ssh % ssh -i ../.ssh/id_rsa_mac student1_13@185.241.193.174
+-bash: warning: setlocale: LC_CTYPE: cannot change locale (UTF-8): No such file or directory
+[student1_13@bigdataanalytics-head-0 ~]$ ssh -i /Users/ekaterina/.ssh/id_rsa_mac student1_13@185.241.193.174
+Warning: Identity file /Users/ekaterina/.ssh/id_rsa_mac not accessible: No such file or directory.
+The authenticity of host '185.241.193.174 (185.241.193.174)' can't be established.
+ECDSA key fingerprint is SHA256:FlX3eC5ZoVY/Ep1XEU1GV6VgbCtLwwMtBS2PDcYYOLM.
+ECDSA key fingerprint is MD5:cd:54:0e:25:bb:b8:9d:04:92:57:89:af:db:12:cd:ed.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added '185.241.193.174' (ECDSA) to the list of known hosts.
+Last login: Tue Feb  2 20:27:10 2021 from 89-64-64-122.dynamic.chello.pl
+[student1_13@bigdataanalytics-head-0 ~]$ ls
+[student1_13@bigdataanalytics-head-0 ~]$ hdfs dfs -ls
+[student1_13@bigdataanalytics-head-0 ~]$ 
+
+
